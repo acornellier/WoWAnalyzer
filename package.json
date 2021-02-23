@@ -60,6 +60,7 @@
     "rc-slider": "^8.6.13",
     "react": "^16.13.1",
     "react-animate-height": "^2.0.15",
+    "react-async": "^10.0.1",
     "react-dom": "^16.8.6",
     "react-helmet": "^6.1.0",
     "react-masonry-component": "^6.2.1",

@@ -174,10 +174,13 @@ ul {
   box-shadow: none;
   color: #fdf7ea;
   border-radius: 0;
-}
-.form-control:focus {
-  box-shadow: none;
-  border: 1px solid $primaryColor;
+  &:focus {
+    box-shadow: none;
+    border: 1px solid $primaryColor;
+  }
+  &.error {
+    border: 1px solid #ff1d19;
+  }
 }
 
 .list {

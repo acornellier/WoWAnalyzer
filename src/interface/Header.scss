@@ -93,6 +93,9 @@ header.report-selection .about {
     box-shadow: none;
     border: 1px solid $primaryColor;
   }
+  .realm.error .realm__input {
+    border: 1px solid #ff1d19;
+  }
   .realm__options {
     max-height: 200px;
     overflow-y: auto;
