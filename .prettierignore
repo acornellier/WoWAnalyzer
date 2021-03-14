@@ -5,3 +5,5 @@ node_modules
 /src/interface/static/bootstrap
 CHANGELOG.tsx
 CHANGELOG.js
+
+analysis/mage*
