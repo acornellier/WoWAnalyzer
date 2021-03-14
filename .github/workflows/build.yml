@@ -138,7 +138,10 @@ jobs:
     needs: [prepare]
     name: 'Build'
     runs-on: ubuntu-latest
-    if: github.repository == 'wowanalyzer/wowanalyzer'
+    if: github.repository == 'acornellier/wowanalyzer'
+    env:
+      REACT_APP_SERVER_BASE: ${{ secrets.REACT_APP_SERVER_BASE }}
+      REACT_APP_WCL_API_KEY: ${{ secrets.REACT_APP_WCL_API_KEY }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
@@ -152,7 +155,7 @@ jobs:
           restore-keys: ${{ runner.os }}-node_modules3-
           read-only: true
       - name: Extract messages
-        if: github.event_name != 'pull_request' && github.repository == 'wowanalyzer/wowanalyzer'
+        if: github.event_name != 'pull_request' && github.repository == 'acornellier/wowanalyzer'
         run: |
           yarn extract
           yarn lingui compile
@@ -197,9 +200,9 @@ jobs:
 
   docker-image:
     needs: [typecheck, linting, test-interface, test-parser, test-integration, build]
-    name: 'Publish Docker image'
+    name: 'Publish Docker image to heroku'
     runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request' && github.repository == 'wowanalyzer/wowanalyzer' && !contains(github.event.head_commit.message, '[skip ci]')
+    if: github.event_name != 'pull_request' && github.repository == 'acornellier/wowanalyzer' && !contains(github.event.head_commit.message, '[skip ci]')
     steps:
       - uses: actions/checkout@v2
       - uses: actions/download-artifact@v1
@@ -213,26 +216,20 @@ jobs:
         id: docker_meta
         uses: crazy-max/ghaction-docker-meta@v1
         with:
-          images: wowanalyzer/wowanalyzer
+          images: acornellier/wowanalyzer
           tag-sha: true
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
-      - name: Login to DockerHub
-        uses: docker/login-action@v1
+      - name: Push to Heroku
+        id: heroku
+        uses: jctaveras/heroku-deploy@v2.1.3
         with:
-          username: ${{secrets.DOCKER_USERNAME}}
-          password: ${{secrets.DOCKER_PASSWORD}}
-      - name: 'Build martijnhols/healfie:${{env.DOCKER_BUILD_TAG}}'
-        id: docker_build
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: ${{ steps.docker_meta.outputs.tags }}
-          labels: ${{ steps.docker_meta.outputs.labels }}
+          email: ${{ secrets.HEROKU_EMAIL }}
+          api_key: ${{ secrets.HEROKU_API_KEY }}
+          app_name: ${{ secrets.HEROKU_APP_NAME }}
+          dockerfile_path: .
 
   # TODO: Sentry releases https://blog.sentry.io/2019/12/17/using-github-actions-to-create-sentry-releases
 
@@ -240,7 +237,7 @@ jobs:
     needs: [prepare]
     name: 'Extract messages'
     runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request' && github.repository == 'wowanalyzer/wowanalyzer' && !contains(github.event.head_commit.message, '[skip ci]')
+    if: github.event_name != 'pull_request' && github.repository == 'acornellier/wowanalyzer' && !contains(github.event.head_commit.message, '[skip ci]')
     steps:
       - uses: actions/checkout@v2
         with:
